@@ -1,9 +1,74 @@
 @import "tailwindcss";
 @import "./fonts.css";
 
+/* 1) BASE TOKENS USING OKLCH
+   L = lightness (0–100%)
+   C = chroma   (0–~0.4 typical)
+   h = hue      (0–360)
+*/
+:root {
+  /* App global */
+  --color-bg: 98% 0.01 250;
+  --color-fg: 12% 0.02 250;
+
+  --color-surface: 95% 0.01 250;
+  --color-surface-strong: 90% 0.02 250;
+
+  --color-border-subtle: 80% 0.02 250;
+  --color-border-strong: 65% 0.04 250;
+
+  /* Accent for “news” stuff */
+  --color-news-red: 60% 0.2 25;
+  --color-muted: 70% 0.02 260;
+}
+
+:root[data-theme="dark"] {
+  --color-bg: 13% 0.02 260;
+  --color-fg: 95% 0.01 250;
+
+  --color-surface: 18% 0.02 260;
+  --color-surface-strong: 24% 0.03 260;
+
+  --color-border-subtle: 35% 0.03 260;
+  --color-border-strong: 50% 0.05 260;
+
+  --color-news-red: 70% 0.24 25;
+  --color-muted: 78% 0.02 260;
+}
+
+:root {
+  --app-bg: var(--color-bg);
+  --app-fg: var(--color-fg);
+
+  --surface-default: var(--color-surface);
+  --surface-strong: var(--color-surface-strong);
+
+  --news-card-bg: var(--surface-strong);
+  --news-card-border: var(--color-border-subtle);
+  --news-accent: var(--color-news-red);
+  --news-muted: var(--color-muted);
+}
+
+@theme {
+  /* These become available as Tailwind colors: bg-bg, text-fg, bg-surface, etc. */
+  --color-bg: oklch(var(--app-bg));
+  --color-fg: oklch(var(--app-fg));
+
+  --color-surface: oklch(var(--surface-default));
+  --color-surface-strong: oklch(var(--surface-strong));
+
+  --color-news-card: oklch(var(--news-card-bg));
+  --color-news-border: oklch(var(--news-card-border));
+  --color-news-accent: oklch(var(--news-accent));
+  --color-news-muted: oklch(var(--news-muted));
+}
+
 html,
 body {
-  @apply m-0;
+  @apply m-2;
+
+  background-color: oklch(var(--app-bg));
+  color: oklch(var(--app-fg));
 
   font-family:
     "Sans",
