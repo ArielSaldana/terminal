@@ -1,14 +1,19 @@
 import { createMiddleware } from "@tanstack/react-start";
-import { isAuthenticated } from "../utils/auth";
+import { getAuthTokenFromRequest } from "../utils/auth.server";
 import { createRootRoute, Outlet, redirect } from "@tanstack/react-router";
 import { AuthProvider } from "../context/AuthContext";
+import { getClientAuthToken } from "@/utils/auth.client";
 
 export const authMiddleware = createMiddleware().server(
-  async ({ next, context }: any) => {
-    const isAuthed = isAuthenticated();
-    const pathname = context.request.url;
+  async ({ next, request }) => {
+    const token = getAuthTokenFromRequest(request);
+    const pathname = new URL(request.url).pathname;
 
-    // Root path logic
+    console.log(token, pathname);
+
+    const isAuthed = !!token;
+
+    // Public route: "/"
     if (pathname === "/") {
       if (isAuthed) {
         throw redirect({ to: "/terminal" });
@@ -16,7 +21,7 @@ export const authMiddleware = createMiddleware().server(
       return next();
     }
 
-    // Protected paths
+    // Protected routes
     if (!isAuthed) {
       throw redirect({ to: "/" });
     }
@@ -33,10 +38,7 @@ export const Route = createRootRoute({
   ),
 });
 
-export function authGuard({ context, navigate }: any) {
-  const isAuthed = isAuthenticated();
-
-  if (!isAuthed) {
-    throw navigate({ to: "/" });
-  }
-}
+export const useClientAuthGuard = () => {
+  const token = getClientAuthToken(); // from localStorage
+  return !!token;
+};

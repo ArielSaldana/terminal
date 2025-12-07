@@ -3,9 +3,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useLogin, usePrivy } from "@privy-io/react-auth";
 import { useAuth } from "../context/AuthContext";
+import { useClientAuthGuard, authMiddleware } from "@/middleware/auth";
 
 export const Route = createFileRoute("/")({
+  server: {
+    middleware: [authMiddleware],
+  },
   component: LoginPage,
+  beforeLoad: useClientAuthGuard,
+  ssr: false,
 });
 
 function LoginPage() {

@@ -1,82 +1,74 @@
-import { createContext, useContext, useState, ReactNode } from "react";
-import { usePrivy } from "@privy-io/react-auth";
-import { getAuthToken, setAuthToken, clearAuthToken } from "../utils/auth";
-import { PrivyProvider } from "@privy-io/react-auth";
+import { createContext, useContext, ReactNode, useState } from "react";
+import { usePrivy, PrivyProvider } from "@privy-io/react-auth";
+import {
+  setAuthToken,
+  clearAuthToken,
+  isClientAuthed,
+} from "../utils/auth.client";
 
-// 1. Export the interface so it can be used as a Type import elsewhere
 export interface AuthContextType {
-  token: string | null;
   isLoading: boolean;
   login: () => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  isAuthed: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined,
 );
-AuthContext.displayName = "AuthContext";
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | null>(getAuthToken());
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Assuming usePrivy returns these. Ensure 'user' is destructured if needed,
-  // otherwise remove it to avoid "unused variable" warnings.
+const AuthProviderInner = ({ children }: { children: ReactNode }) => {
   const { getAccessToken, logout: privyLogout } = usePrivy();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(isClientAuthed());
 
   const login = async () => {
     setIsLoading(true);
     try {
       const privyToken = await getAccessToken();
 
-      // Ensure this endpoint exists
-      const response = await fetch("/api/auth/exchange", {
+      if (!privyToken) {
+        throw new Error("Failed to get Privy token");
+      }
+
+      await fetch("/api/auth/exchange", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ privyToken }),
       });
 
-      const { token: nativeToken } = await response.json();
-
-      setAuthToken(nativeToken);
-      setToken(nativeToken);
-    } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
+      setAuthToken(privyToken); // store in localStorage & client cookie
+      setIsAuthed(true);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
     clearAuthToken();
-    setToken(null);
-    privyLogout();
+    setIsAuthed(false);
+    await privyLogout();
   };
 
   return (
-    <AuthContext.Provider value={{ token, isLoading, login, logout }}>
-      <PrivyProvider
-        appId="cm2oobkny0catfo18oi5tlcsy"
-        clientId="client-WY5cji4yMiP2MeLZWDjxtLjxgkMejPsszB7RuouMCR31r"
-        config={{
-          embeddedWallets: {
-            ethereum: {
-              createOnLogin: "all-users",
-            },
-          },
-        }}
-      >
-        {children}
-      </PrivyProvider>
+    <AuthContext.Provider value={{ login, logout, isLoading, isAuthed }}>
+      {children}
     </AuthContext.Provider>
   );
 };
 
+export const AuthProvider = ({ children }: { children: ReactNode }) => (
+  <PrivyProvider
+    appId="cm2oobkny0catfo18oi5tlcsy"
+    clientId="client-WY5cji4yMiP2MeLZWDjxtLjxgkMejPsszB7RuouMCR31r"
+  >
+    <AuthProviderInner>{children}</AuthProviderInner>
+  </PrivyProvider>
+);
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used inside AuthProvider");
   return context;
 };

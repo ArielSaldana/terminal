@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { authGuard } from "../../middleware/auth";
+import { authMiddleware } from "../../middleware/auth";
 
 export const Route = createFileRoute("/terminal/")({
-  beforeLoad: authGuard,
+  server: {
+    middleware: [authMiddleware],
+  },
+  // beforeLoad: authGuard,
   component: TerminalPage,
+  ssr: false,
 });
 
 function TerminalPage() {

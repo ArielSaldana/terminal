@@ -16,6 +16,7 @@ import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.se
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
+import { Route as ApiAuthLogoutIndexRouteImport } from './routes/api/auth/logout/index'
 import { Route as ApiAuthExchangeIndexRouteImport } from './routes/api/auth/exchange/index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
@@ -55,6 +56,11 @@ const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   path: '/demo/start/ssr/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthLogoutIndexRoute = ApiAuthLogoutIndexRouteImport.update({
+  id: '/api/auth/logout/',
+  path: '/api/auth/logout/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthExchangeIndexRoute = ApiAuthExchangeIndexRouteImport.update({
   id: '/api/auth/exchange/',
   path: '/api/auth/exchange/',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
   '/api/auth/exchange': typeof ApiAuthExchangeIndexRoute
+  '/api/auth/logout': typeof ApiAuthLogoutIndexRoute
   '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesByTo {
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
   '/api/auth/exchange': typeof ApiAuthExchangeIndexRoute
+  '/api/auth/logout': typeof ApiAuthLogoutIndexRoute
   '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesById {
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
   '/api/auth/exchange/': typeof ApiAuthExchangeIndexRoute
+  '/api/auth/logout/': typeof ApiAuthLogoutIndexRoute
   '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
 }
 export interface FileRouteTypes {
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
     | '/api/auth/exchange'
+    | '/api/auth/logout'
     | '/demo/start/ssr'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
     | '/api/auth/exchange'
+    | '/api/auth/logout'
     | '/demo/start/ssr'
   id:
     | '__root__'
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
     | '/api/auth/exchange/'
+    | '/api/auth/logout/'
     | '/demo/start/ssr/'
   fileRoutesById: FileRoutesById
 }
@@ -165,6 +177,7 @@ export interface RootRouteChildren {
   DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
   DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
   ApiAuthExchangeIndexRoute: typeof ApiAuthExchangeIndexRoute
+  ApiAuthLogoutIndexRoute: typeof ApiAuthLogoutIndexRoute
   DemoStartSsrIndexRoute: typeof DemoStartSsrIndexRoute
 }
 
@@ -219,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStartSsrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/logout/': {
+      id: '/api/auth/logout/'
+      path: '/api/auth/logout'
+      fullPath: '/api/auth/logout'
+      preLoaderRoute: typeof ApiAuthLogoutIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/exchange/': {
       id: '/api/auth/exchange/'
       path: '/api/auth/exchange'
@@ -261,6 +281,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
   DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,
   ApiAuthExchangeIndexRoute: ApiAuthExchangeIndexRoute,
+  ApiAuthLogoutIndexRoute: ApiAuthLogoutIndexRoute,
   DemoStartSsrIndexRoute: DemoStartSsrIndexRoute,
 }
 export const routeTree = rootRouteImport

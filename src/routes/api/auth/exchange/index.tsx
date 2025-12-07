@@ -1,46 +1,41 @@
+// src/routes/api/auth/exchange.ts
+import { makeAuthCookie } from "@/utils/auth.server";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/api/auth/exchange/")({
   server: {
     handlers: {
-      POST: async ({ request }: { request: Request }) => {
+      POST: async ({ request }) => {
         const { privyToken } = await request.json();
 
-        // Call your auth API
-        const response = await fetch("https://your-api.com/auth/exchange", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ privyToken }),
-        });
+        // 1. Exchange Privy token
+        const response = await fetch(
+          "https://dusted.app/api/account/auth/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${privyToken}`,
+            },
+          },
+        );
 
-        const { token } = await response.json();
+        if (!response.ok) {
+          return json({ error: "Invalid Privy token" }, { status: 401 });
+        }
 
-        return json({ token });
+        const { token: nativeToken } = await response.json();
+
+        return json(
+          { ok: true },
+          {
+            headers: {
+              "Set-Cookie": makeAuthCookie(nativeToken),
+            },
+          },
+        );
       },
     },
   },
 });
-
-// export const Route = createFileRoute("/api/auth/exchange/")({
-//   component: RouteComponent,
-// });
-
-// function RouteComponent() {
-//   return <div>Hello "/api/auth/exchange/"!</div>;
-// }
-
-// const func = async function POST({ request }: { request: Request }) {
-//   const { privyToken } = await request.json();
-
-//   // Call your auth API
-//   const response = await fetch("https://your-api.com/auth/exchange", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ privyToken }),
-//   });
-
-//   const { token } = await response.json();
-
-//   return json({ token });
-// };
